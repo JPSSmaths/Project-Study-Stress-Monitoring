@@ -14,15 +14,12 @@ from scipy.stats import f_oneway, pearsonr
 import warnings
 warnings.filterwarnings('ignore')
 
-# Configuração da página
 st.set_page_config(
     page_title="Dashboard - Análise de Estresse Estudantil",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# CSS customizado para um design mais limpo e organizado
 st.markdown("""
 <style>
     /* Estilo principal */
@@ -166,34 +163,30 @@ def load_data():
         df = pd.read_csv("StressLevelDataset.csv")
         return df
     except FileNotFoundError:
-        st.error("❌ Arquivo 'StressLevelDataset.csv' não encontrado!")
+        st.error(" Arquivo 'StressLevelDataset.csv' não encontrado!")
         return None
 
 def main():
-    # Header
-    st.markdown('<h1 class="main-header">📊 Dashboard - Análise de Estresse Estudantil</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header"> Dashboard - Análise de Estresse Estudantil</h1>', unsafe_allow_html=True)
     
-    # Carregar dados
     df = load_data()
     
     if df is None:
         st.stop()
     
-    # Sidebar com filtros melhorado
-    st.sidebar.markdown("## 🎛️ Painel de Controle")
+    st.sidebar.markdown("## Painel de Controle")
     st.sidebar.markdown("---")
     
-    # Navegação rápida
-    st.sidebar.markdown("### 🧭 Navegação Rápida")
+    st.sidebar.markdown("### Navegação Rápida")
     nav_options = {
-        "📊 Métricas Principais": "#m-tricas-principais",
-        "📈 Distribuições": "#distribui-o-dos-dados", 
-        "🔗 Correlações": "#an-lise-de-correla-es",
-        "🎭 Impacto Bullying": "#an-lise-detalhada-do-impacto-do-bullying",
-        "🔍 Análise Multivariada": "#an-lise-multivariada",
-        "🔬 Testes Estatísticos": "#testes-de-hip-tese-estat-stica",
-        "🤖 Modelo Preditivo": "#modelo-preditivo-de-estresse",
-        "💡 Insights": "#insights-e-recomenda-es"
+        "Métricas Principais": "#m-tricas-principais",
+        "Distribuições": "#distribui-o-dos-dados", 
+        "Correlações": "#an-lise-de-correla-es",
+        "Impacto Bullying": "#an-lise-detalhada-do-impacto-do-bullying",
+        "Análise Multivariada": "#an-lise-multivariada",
+        "Testes Estatísticos": "#testes-de-hip-tese-estat-stica",
+        "Modelo Preditivo": "#modelo-preditivo-de-estresse",
+        "Insights": "#insights-e-recomenda-es"
     }
     
     selected_section = st.sidebar.selectbox(
@@ -204,12 +197,10 @@ def main():
     
     st.sidebar.markdown("---")
     
-    # Seção de filtros principais
-    st.sidebar.markdown("### 📊 Filtros de Dados")
+    st.sidebar.markdown("### Filtros de Dados")
     
-    # Filtros
     stress_range = st.sidebar.slider(
-        "📈 Nível de Estresse",
+        "Nível de Estresse",
         min_value=int(df['stress_level'].min()),
         max_value=int(df['stress_level'].max()),
         value=(int(df['stress_level'].min()), int(df['stress_level'].max())),
@@ -217,7 +208,7 @@ def main():
     )
     
     bullying_filter = st.sidebar.multiselect(
-        "🎭 Status de Bullying",
+        "Status de Bullying",
         options=[0, 1],
         default=[0, 1],
         format_func=lambda x: "Sem Bullying" if x == 0 else "Com Bullying",
@@ -225,32 +216,30 @@ def main():
     )
     
     anxiety_range = st.sidebar.slider(
-        "😰 Nível de Ansiedade",
+        "Nível de Ansiedade",
         min_value=float(df['anxiety_level'].min()),
         max_value=float(df['anxiety_level'].max()),
         value=(float(df['anxiety_level'].min()), float(df['anxiety_level'].max())),
         help="Filtre por faixa de nível de ansiedade"
     )
     
-    # Adicionar mais filtros
-    st.sidebar.markdown("### 🔧 Filtros Adicionais")
+    st.sidebar.markdown("### Filtros Adicionais")
     
     sleep_quality_filter = st.sidebar.multiselect(
-        "😴 Qualidade do Sono",
+        "Qualidade do Sono",
         options=sorted(df['sleep_quality'].unique()),
         default=sorted(df['sleep_quality'].unique()),
         help="Selecione níveis de qualidade do sono"
     )
     
     depression_range = st.sidebar.slider(
-        "😔 Nível de Depressão",
+        "Nível de Depressão",
         min_value=int(df['depression'].min()),
         max_value=int(df['depression'].max()),
         value=(int(df['depression'].min()), int(df['depression'].max())),
         help="Filtre por faixa de nível de depressão"
     )
     
-    # Aplicar filtros
     filtered_df = df[
         (df['stress_level'] >= stress_range[0]) & 
         (df['stress_level'] <= stress_range[1]) &
@@ -262,17 +251,16 @@ def main():
         (df['depression'] <= depression_range[1])
     ]
     
-    # Informações dos dados filtrados
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### � Resumo dos Dados")
+    st.sidebar.markdown("### Resumo dos Dados")
     
     total_students = len(df)
     filtered_students = len(filtered_df)
     percentage = (filtered_students / total_students * 100) if total_students > 0 else 0
     
-    st.sidebar.metric("👥 Total de Estudantes", f"{total_students:,}")
-    st.sidebar.metric("🔍 Dados Filtrados", f"{filtered_students:,}")
-    st.sidebar.metric("📊 Percentual", f"{percentage:.1f}%")
+    st.sidebar.metric("Total de Estudantes", f"{total_students:,}")
+    st.sidebar.metric("Dados Filtrados", f"{filtered_students:,}")
+    st.sidebar.metric("Percentual", f"{percentage:.1f}%")
     
     if filtered_students > 0:
         avg_stress_filtered = filtered_df['stress_level'].mean()
@@ -280,20 +268,19 @@ def main():
         stress_diff = avg_stress_filtered - avg_stress_total
         
         st.sidebar.metric(
-            "📈 Estresse Médio (Filtrado)", 
+            "Estresse Médio (Filtrado)", 
             f"{avg_stress_filtered:.2f}",
             delta=f"{stress_diff:+.2f}"
         )
     
-    # === SEÇÃO 1: MÉTRICAS PRINCIPAIS ===
-    st.header("📊 Visão Geral - Métricas Principais")
+    st.header("Visão Geral - Métricas Principais")
     
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         avg_stress = filtered_df['stress_level'].mean()
         st.metric(
-            label="📈 Estresse Médio",
+            label="Estresse Médio",
             value=f"{avg_stress:.2f}",
             delta=f"{avg_stress - df['stress_level'].mean():.2f}" if len(filtered_df) < len(df) else None
         )
@@ -301,7 +288,7 @@ def main():
     with col2:
         bullying_pct = (filtered_df['bullying'].sum() / len(filtered_df)) * 100 if len(filtered_df) > 0 else 0
         st.metric(
-            label="🎭 % com Bullying",
+            label="% com Bullying",
             value=f"{bullying_pct:.1f}%",
             delta=f"{bullying_pct - (df['bullying'].sum() / len(df)) * 100:.1f}%" if len(filtered_df) < len(df) else None
         )
@@ -309,7 +296,7 @@ def main():
     with col3:
         avg_selfesteem = filtered_df['self_esteem'].mean()
         st.metric(
-            label="💪 Autoestima Média",
+            label="Autoestima Média",
             value=f"{avg_selfesteem:.2f}",
             delta=f"{avg_selfesteem - df['self_esteem'].mean():.2f}" if len(filtered_df) < len(df) else None
         )
@@ -317,24 +304,22 @@ def main():
     with col4:
         high_stress_pct = (len(filtered_df[filtered_df['stress_level'] >= 3]) / len(filtered_df)) * 100 if len(filtered_df) > 0 else 0
         st.metric(
-            label="🚨 % Alto Estresse",
+            label="% Alto Estresse",
             value=f"{high_stress_pct:.1f}%",
             delta=f"{high_stress_pct - (len(df[df['stress_level'] >= 3]) / len(df)) * 100:.1f}%" if len(filtered_df) < len(df) else None
         )
     
-    # === SEÇÃO 2: DISTRIBUIÇÕES ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("📈 Distribuição dos Dados")
+    st.header("Distribuição dos Dados")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # Histograma de Estresse
         fig_hist = px.histogram(
             filtered_df, 
             x='stress_level',
             nbins=20,
-            title="📊 Distribuição dos Níveis de Estresse",
+            title="Distribuição dos Níveis de Estresse",
             color_discrete_sequence=['#1f77b4']
         )
         fig_hist.update_layout(
@@ -342,15 +327,18 @@ def main():
             yaxis_title="Frequência",
             showlegend=False
         )
-        st.plotly_chart(fig_hist, width="stretch")
+        st.plotly_chart(
+            fig_hist, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
     with col2:
-        # Box plot por bullying
         fig_box = px.box(
             filtered_df,
             x='bullying',
             y='stress_level',
-            title="📦 Estresse por Status de Bullying",
+            title="Estresse por Status de Bullying",
             color='bullying',
             color_discrete_map={0: '#2ecc71', 1: '#e74c3c'}
         )
@@ -359,21 +347,22 @@ def main():
             ticktext=['Sem Bullying', 'Com Bullying']
         )
         fig_box.update_layout(showlegend=False)
-        st.plotly_chart(fig_box, width="stretch")
+        st.plotly_chart(
+            fig_box, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
-    # === SEÇÃO 3: ANÁLISE DE CORRELAÇÕES ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("🔗 Análise de Correlações")
+    st.header("Análise de Correlações")
     
-    # Calcular matriz de correlação
     correlation_vars = ['stress_level', 'anxiety_level', 'self_esteem', 'sleep_quality', 
-                       'bullying', 'depression', 'peer_pressure', 'social_support']
+                    'bullying', 'depression', 'peer_pressure', 'social_support']
     corr_matrix = filtered_df[correlation_vars].corr()
     
-    # Heatmap de correlações
     fig_heatmap = px.imshow(
         corr_matrix,
-        title="🌡️ Matriz de Correlações entre Variáveis",
+        title="Matriz de Correlações entre Variáveis",
         color_continuous_scale="RdBu_r",
         aspect="auto",
         text_auto=True
@@ -382,9 +371,12 @@ def main():
         width=800,
         height=600
     )
-    st.plotly_chart(fig_heatmap, width="stretch")
+    st.plotly_chart(
+        fig_heatmap, 
+        use_container_width=True,
+        config={"responsive": True}
+    )
     
-    # Top correlações com estresse
     stress_corr = corr_matrix['stress_level'].abs().sort_values(ascending=False)
     stress_corr = stress_corr[stress_corr.index != 'stress_level']
     
@@ -392,19 +384,18 @@ def main():
     
     with col1:
         st.markdown('<div class="insight-box">', unsafe_allow_html=True)
-        st.markdown("### 🎯 Fatores Mais Correlacionados com Estresse")
+        st.markdown("### Fatores Mais Correlacionados com Estresse")
         for var, corr in stress_corr.head(5).items():
-            direction = "📈 Positiva" if corr_matrix.loc['stress_level', var] > 0 else "📉 Negativa"
+            direction = "Positiva" if corr_matrix.loc['stress_level', var] > 0 else "Negativa"
             st.markdown(f"**{var.replace('_', ' ').title()}:** {corr:.3f} {direction}")
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        # Gráfico de barras das correlações
         fig_corr_bar = px.bar(
             x=stress_corr.head(5).values,
             y=stress_corr.head(5).index,
             orientation='h',
-            title="📊 Top 5 Correlações com Estresse",
+            title="Top 5 Correlações com Estresse",
             color=stress_corr.head(5).values,
             color_continuous_scale="viridis"
         )
@@ -413,13 +404,15 @@ def main():
             xaxis_title="Correlação (valor absoluto)",
             showlegend=False
         )
-        st.plotly_chart(fig_corr_bar, width="stretch")
+        st.plotly_chart(
+            fig_corr_bar, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
-    # === SEÇÃO 4: IMPACTO DO BULLYING ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("🎭 Análise Detalhada do Impacto do Bullying")
+    st.header("Análise Detalhada do Impacto do Bullying")
     
-    # Comparação entre grupos
     no_bullying = filtered_df[filtered_df['bullying'] == 0]
     with_bullying = filtered_df[filtered_df['bullying'] == 1]
     
@@ -427,54 +420,51 @@ def main():
     
     with col1:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### 😊 Sem Bullying")
+        st.markdown("### Sem Bullying")
         if len(no_bullying) > 0:
-            st.markdown(f"**👥 Estudantes:** {len(no_bullying)}")
-            st.markdown(f"**📈 Estresse Médio:** {no_bullying['stress_level'].mean():.2f}")
-            st.markdown(f"**😰 Ansiedade Média:** {no_bullying['anxiety_level'].mean():.1f}")
-            st.markdown(f"**💪 Autoestima Média:** {no_bullying['self_esteem'].mean():.2f}")
+            st.markdown(f"**Estudantes:** {len(no_bullying)}")
+            st.markdown(f"**Estresse Médio:** {no_bullying['stress_level'].mean():.2f}")
+            st.markdown(f"**Ansiedade Média:** {no_bullying['anxiety_level'].mean():.1f}")
+            st.markdown(f"**Autoestima Média:** {no_bullying['self_esteem'].mean():.2f}")
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### 😰 Com Bullying")
+        st.markdown("### Com Bullying")
         if len(with_bullying) > 0:
-            st.markdown(f"**👥 Estudantes:** {len(with_bullying)}")
-            st.markdown(f"**📈 Estresse Médio:** {with_bullying['stress_level'].mean():.2f}")
-            st.markdown(f"**😰 Ansiedade Média:** {with_bullying['anxiety_level'].mean():.1f}")
-            st.markdown(f"**💪 Autoestima Média:** {with_bullying['self_esteem'].mean():.2f}")
+            st.markdown(f"**Estudantes:** {len(with_bullying)}")
+            st.markdown(f"**Estresse Médio:** {with_bullying['stress_level'].mean():.2f}")
+            st.markdown(f"**Ansiedade Média:** {with_bullying['anxiety_level'].mean():.1f}")
+            st.markdown(f"**Autoestima Média:** {with_bullying['self_esteem'].mean():.2f}")
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col3:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### 📊 Diferença")
+        st.markdown("### Diferença")
         if len(no_bullying) > 0 and len(with_bullying) > 0:
             stress_diff = with_bullying['stress_level'].mean() - no_bullying['stress_level'].mean()
             anxiety_diff = with_bullying['anxiety_level'].mean() - no_bullying['anxiety_level'].mean()
             esteem_diff = with_bullying['self_esteem'].mean() - no_bullying['self_esteem'].mean()
             
-            st.markdown(f"**📈 Δ Estresse:** {stress_diff:+.2f}")
-            st.markdown(f"**😰 Δ Ansiedade:** {anxiety_diff:+.1f}")
-            st.markdown(f"**💪 Δ Autoestima:** {esteem_diff:+.2f}")
+            st.markdown(f"**Estresse:** {stress_diff:+.2f}")
+            st.markdown(f"**Ansiedade:** {anxiety_diff:+.1f}")
+            st.markdown(f"**Autoestima:** {esteem_diff:+.2f}")
             
-            # Teste estatístico
             if len(no_bullying) > 1 and len(with_bullying) > 1:
                 t_stat, p_value = stats.ttest_ind(with_bullying['stress_level'], no_bullying['stress_level'])
                 significance = "Significativa" if p_value < 0.05 else "Não significativa"
-                st.markdown(f"**🔬 Diferença:** {significance}")
+                st.markdown(f"**Diferença:** {significance}")
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Gráficos comparativos
     col1, col2 = st.columns(2)
     
     with col1:
-        # Violin plot
         fig_violin = px.violin(
             filtered_df,
             x='bullying',
             y='stress_level',
             box=True,
-            title="🎻 Distribuição de Estresse por Bullying",
+            title="Distribuição de Estresse por Bullying",
             color='bullying',
             color_discrete_map={0: '#2ecc71', 1: '#e74c3c'}
         )
@@ -483,10 +473,14 @@ def main():
             ticktext=['Sem Bullying', 'Com Bullying']
         )
         fig_violin.update_layout(showlegend=False)
-        st.plotly_chart(fig_violin, width="stretch")
+        st.plotly_chart(
+            fig_violin,
+            use_container_width=True,   
+            config={"responsive": True}
+        )
+
     
     with col2:
-        # Múltiplas métricas
         metrics = ['stress_level', 'anxiety_level', 'self_esteem', 'sleep_quality']
         bullying_comparison = []
         
@@ -512,47 +506,55 @@ def main():
             y='Value',
             color='Group',
             barmode='group',
-            title="📊 Comparação de Múltiplas Métricas",
+            title="Comparação de Múltiplas Métricas",
             color_discrete_map={'Sem Bullying': '#2ecc71', 'Com Bullying': '#e74c3c'}
         )
         fig_comparison.update_xaxes(tickangle=45)
-        st.plotly_chart(fig_comparison, width="stretch")
-    
-    # === SEÇÃO 5: ANÁLISE MULTIVARIADA ===
+        st.plotly_chart(
+            fig_comparison,
+            use_container_width=True,
+            config={"responsive": True}
+        )
+
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("🔍 Análise Multivariada")
+    st.header("Análise Multivariada")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # Scatter plot 3D
         fig_3d = px.scatter_3d(
             filtered_df,
             x='anxiety_level',
             y='self_esteem',
             z='stress_level',
             color='bullying',
-            title="🌐 Análise Tridimensional",
+            title="Análise Tridimensional",
             color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
             hover_data=['sleep_quality', 'depression']
         )
-        st.plotly_chart(fig_3d, width="stretch")
+        st.plotly_chart(
+            fig_3d, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
     with col2:
-        # Scatter plot com tamanho
         fig_scatter = px.scatter(
             filtered_df,
             x='anxiety_level',
             y='stress_level',
             size='depression',
             color='bullying',
-            title="💫 Ansiedade vs Estresse (tamanho = depressão)",
+            title="Ansiedade vs Estresse (tamanho = depressão)",
             color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
             hover_data=['self_esteem', 'sleep_quality']
         )
-        st.plotly_chart(fig_scatter, width="stretch")
+        st.plotly_chart(
+            fig_scatter, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
-    # === SEÇÃO 6: TESTES DE HIPÓTESE ESTATÍSTICA ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("🔬 Testes de Hipótese Estatística")
     
@@ -565,13 +567,11 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Hipótese 1: ANOVA - Sleep Quality vs Stress Level
-    st.subheader("📊 Hipótese 1: ANOVA - Qualidade do Sono vs Nível de Estresse")
+    st.subheader("Hipótese 1: ANOVA - Qualidade do Sono vs Nível de Estresse")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        # Preparar dados para ANOVA
         grupos_sleep = []
         sleep_quality_stats = []
         
@@ -590,7 +590,7 @@ def main():
             filtered_df,
             x='sleep_quality',
             y='stress_level',
-            title="📦 Distribuição de Stress Level por Sleep Quality",
+            title="Distribuição de Stress Level por Sleep Quality",
             color='sleep_quality',
             color_discrete_sequence=px.colors.qualitative.Set3
         )
@@ -616,52 +616,51 @@ def main():
             yaxis_title="Stress Level",
             showlegend=False
         )
-        st.plotly_chart(fig_anova, width="stretch")
+        st.plotly_chart(
+            fig_anova, 
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
     with col2:
-        # Realizar teste ANOVA
         if len(grupos_sleep) > 1 and all(len(grupo) > 1 for grupo in grupos_sleep):
             f_stat, p_value_anova = f_oneway(*grupos_sleep)
             
             st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-            st.markdown("### 📊 Resultados ANOVA")
+            st.markdown("### Resultados ANOVA")
             st.markdown(f"**F-statistic:** {f_stat:.4f}")
             st.markdown(f"**p-valor:** {p_value_anova:.2e}")
             
             if p_value_anova < 0.05:
-                st.markdown("✅ **SIGNIFICATIVO**")
+                st.markdown("**SIGNIFICATIVO**")
                 st.markdown("Rejeitamos H₀: Há diferença significativa entre as médias")
             else:
-                st.markdown("❌ **NÃO SIGNIFICATIVO**")
+                st.markdown("**NÃO SIGNIFICATIVO**")
                 st.markdown("Não rejeitamos H₀: Não há evidência de diferença")
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # Tabela de estatísticas
-            st.markdown("#### 📋 Estatísticas por Grupo")
+            st.markdown("#### Estatísticas por Grupo")
             stats_df = pd.DataFrame(sleep_quality_stats)
             st.dataframe(stats_df, width="stretch")
     
     st.markdown("---")
     
-    # Hipótese 2: Correlação - Study Load vs Stress Level
-    st.subheader("📈 Hipótese 2: Correlação - Carga de Estudos vs Nível de Estresse")
+    st.subheader("Hipótese 2: Correlação - Carga de Estudos vs Nível de Estresse")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        # Scatter plot para correlação
         fig_corr = px.scatter(
             filtered_df,
             x='study_load',
             y='stress_level',
-            title="📈 Correlação entre Study Load e Stress Level",
+            title="Correlação entre Study Load e Stress Level",
             opacity=0.6,
             color='bullying',
             color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
             hover_data=['anxiety_level', 'sleep_quality']
         )
         
-        # Adicionar linha de regressão
         if len(filtered_df) > 1:
             z = np.polyfit(filtered_df['study_load'], filtered_df['stress_level'], 1)
             p = np.poly1d(z)
@@ -679,21 +678,23 @@ def main():
             xaxis_title="Study Load",
             yaxis_title="Stress Level"
         )
-        st.plotly_chart(fig_corr, width="stretch")
+        st.plotly_chart(
+            fig_corr,
+            use_container_width=True,
+            config={"responsive": True}
+        )
     
     with col2:
-        # Realizar teste de correlação
         if len(filtered_df) > 2:
             correlation_coef, p_value_corr = pearsonr(filtered_df['stress_level'], filtered_df['study_load'])
             r_squared = correlation_coef ** 2
             
             st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-            st.markdown("### 📈 Resultados Correlação")
+            st.markdown("### Resultados Correlação")
             st.markdown(f"**Coeficiente (r):** {correlation_coef:.4f}")
             st.markdown(f"**p-valor:** {p_value_corr:.2e}")
             st.markdown(f"**R² (variância explicada):** {r_squared:.1%}")
             
-            # Interpretação da força
             if abs(correlation_coef) < 0.3:
                 forca = "Fraca"
                 emoji = "🟡"
@@ -707,35 +708,32 @@ def main():
             st.markdown(f"**Força:** {emoji} {forca}")
             
             if p_value_corr < 0.05:
-                st.markdown("✅ **SIGNIFICATIVO**")
+                st.markdown("**SIGNIFICATIVO**")
                 st.markdown("Correlação positiva confirmada")
             else:
-                st.markdown("❌ **NÃO SIGNIFICATIVO**")
+                st.markdown("**NÃO SIGNIFICATIVO**")
                 st.markdown("Correlação não confirmada")
             st.markdown('</div>', unsafe_allow_html=True)
     
-    # Comparação dos dois testes
-    st.markdown("### 🎯 Resumo dos Testes de Hipótese")
+    st.markdown("### Resumo dos Testes de Hipótese")
     
     summary_data = []
     
-    # ANOVA summary
     if len(grupos_sleep) > 1 and all(len(grupo) > 1 for grupo in grupos_sleep):
         summary_data.append({
             'Teste': 'ANOVA (Sleep Quality → Stress)',
             'Estatística': f'F = {f_stat:.3f}',
             'p-valor': f'{p_value_anova:.2e}',
-            'Resultado': '✅ Significativo' if p_value_anova < 0.05 else '❌ Não significativo',
+            'Resultado': 'Significativo' if p_value_anova < 0.05 else '❌ Não significativo',
             'Interpretação': 'Qualidade do sono afeta o estresse' if p_value_anova < 0.05 else 'Sem evidência de efeito'
         })
     
-    # Correlação summary
     if len(filtered_df) > 2:
         summary_data.append({
             'Teste': 'Correlação (Study Load ↔ Stress)',
             'Estatística': f'r = {correlation_coef:.3f}',
             'p-valor': f'{p_value_corr:.2e}',
-            'Resultado': '✅ Significativo' if p_value_corr < 0.05 else '❌ Não significativo',
+            'Resultado': 'Significativo' if p_value_corr < 0.05 else '❌ Não significativo',
             'Interpretação': f'Correlação {forca.lower()} positiva' if p_value_corr < 0.05 else 'Sem correlação significativa'
         })
     
@@ -745,45 +743,38 @@ def main():
     
     st.markdown("---")
     
-    # === SEÇÃO 7: MODELAGEM PREDITIVA ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("🤖 Modelo Preditivo de Estresse")
+    st.header("Modelo Preditivo de Estresse")
     
-    # Preparar dados para o modelo
     feature_cols = ['anxiety_level', 'future_career_concerns', 'bullying', 
-                   'depression', 'sleep_quality', 'peer_pressure']
+                'depression', 'sleep_quality', 'peer_pressure']
     
     if all(col in filtered_df.columns for col in feature_cols):
         X = filtered_df[feature_cols]
         y = filtered_df['stress_level']
         
-        # Dividir dados
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
-        # Treinar modelo
         model = LinearRegression()
         model.fit(X_train, y_train)
         
-        # Fazer predições
         y_pred = model.predict(X_test)
         
-        # Métricas do modelo
         r2 = r2_score(y_test, y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("📊 R² Score", f"{r2:.3f}")
+            st.metric("R² Score", f"{r2:.3f}")
         
         with col2:
-            st.metric("📏 RMSE", f"{rmse:.3f}")
+            st.metric("RMSE", f"{rmse:.3f}")
         
         with col3:
             accuracy_category = "Excelente" if r2 > 0.8 else "Bom" if r2 > 0.6 else "Regular"
-            st.metric("🎯 Performance", accuracy_category)
+            st.metric("Performance", accuracy_category)
         
-        # Importância das features
         feature_importance = pd.DataFrame({
             'Feature': feature_cols,
             'Coefficient': model.coef_
@@ -799,18 +790,21 @@ def main():
                 x='Abs_Coefficient',
                 y='Feature',
                 orientation='h',
-                title="📊 Importância das Variáveis",
+                title="Importância das Variáveis",
                 color='Coefficient',
                 color_continuous_scale="RdBu_r"
             )
-            st.plotly_chart(fig_importance, width="stretch")
+            st.plotly_chart(
+                fig_importance, 
+                use_container_width=True,
+                config={"responsive": True}
+            )
         
         with col2:
-            # Predições vs Real
             fig_pred = px.scatter(
                 x=y_test,
                 y=y_pred,
-                title="🎯 Predições vs Valores Reais",
+                title="Predições vs Valores Reais",
                 labels={'x': 'Valores Reais', 'y': 'Predições'}
             )
             fig_pred.add_trace(go.Scatter(
@@ -820,56 +814,53 @@ def main():
                 name='Linha Perfeita',
                 line=dict(dash='dash', color='red')
             ))
-            st.plotly_chart(fig_pred, width="stretch")
+            st.plotly_chart(
+                fig_pred,
+                use_container_width=True,
+                config={"responsive": True}
+            )
     
-    # === SEÇÃO 8: INSIGHTS E RECOMENDAÇÕES ===
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("💡 Insights e Recomendações")
+    st.header("Insights e Recomendações")
     
     insights = []
     
-    # Análise do bullying
     if len(filtered_df) > 0:
         bullying_rate = (filtered_df['bullying'].sum() / len(filtered_df)) * 100
         if bullying_rate > 30:
-            insights.append("🚨 **Alta prevalência de bullying** - Implementar programa de prevenção urgente")
+            insights.append("**Alta prevalência de bullying** - Implementar programa de prevenção urgente")
         elif bullying_rate > 15:
-            insights.append("⚠️ **Bullying moderado** - Fortalecer políticas anti-bullying")
+            insights.append("**Bullying moderado** - Fortalecer políticas anti-bullying")
         else:
-            insights.append("✅ **Baixa incidência de bullying** - Manter programas preventivos")
+            insights.append("**Baixa incidência de bullying** - Manter programas preventivos")
     
-    # Análise do estresse
     if len(filtered_df) > 0:
         high_stress_rate = (len(filtered_df[filtered_df['stress_level'] >= 3]) / len(filtered_df)) * 100
         if high_stress_rate > 25:
-            insights.append("😰 **Alto nível de estresse** - Implementar técnicas de gestão de estresse")
+            insights.append("**Alto nível de estresse** - Implementar técnicas de gestão de estresse")
         elif high_stress_rate > 15:
-            insights.append("🟡 **Estresse moderado** - Oferecer suporte psicológico")
+            insights.append("**Estresse moderado** - Oferecer suporte psicológico")
         else:
-            insights.append("😌 **Níveis de estresse controlados** - Continuar monitoramento")
+            insights.append("**Níveis de estresse controlados** - Continuar monitoramento")
     
-    # Análise da autoestima
     if len(filtered_df) > 0:
         avg_self_esteem = filtered_df['self_esteem'].mean()
         if avg_self_esteem < 2.5:
-            insights.append("💪 **Baixa autoestima** - Desenvolver programas de empoderamento")
+            insights.append("**Baixa autoestima** - Desenvolver programas de empoderamento")
         elif avg_self_esteem < 3.5:
-            insights.append("🔄 **Autoestima moderada** - Incentivar atividades de desenvolvimento pessoal")
+            insights.append("**Autoestima moderada** - Incentivar atividades de desenvolvimento pessoal")
         else:
-            insights.append("🌟 **Boa autoestima** - Manter ambiente positivo")
+            insights.append("**Boa autoestima** - Manter ambiente positivo")
     
-    # Mostrar insights
     for i, insight in enumerate(insights, 1):
         st.markdown(f'<div class="insight-item">{i}. {insight}</div>', unsafe_allow_html=True)
     
-    # === SEÇÃO 9: DADOS FILTRADOS ===
-    with st.expander("📋 Ver Dados Filtrados", expanded=False):
+    with st.expander("Ver Dados Filtrados", expanded=False):
         st.dataframe(filtered_df, width="stretch")
         
-        # Download dos dados filtrados
         csv = filtered_df.to_csv(index=False)
         st.download_button(
-            label="💾 Download dados filtrados (CSV)",
+            label="Download dados filtrados (CSV)",
             data=csv,
             file_name="dados_filtrados_estresse.csv",
             mime="text/csv"
@@ -877,7 +868,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("### 📈 Dashboard de Análise de Estresse Estudantil")
+    st.markdown("### Dashboard de Análise de Estresse Estudantil")
     st.markdown("*Desenvolvido para apoiar a tomada de decisões baseada em dados na educação*")
 
 if __name__ == "__main__":
