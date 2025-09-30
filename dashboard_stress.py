@@ -356,9 +356,12 @@ def main():
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Análise de Correlações")
     
+    # Aviso sobre uso de dados completos para correlações
+    st.info("📊 **Correlações calculadas com dataset completo** para análise estatística precisa. Filtros aplicam-se apenas às outras visualizações.")
+    
     correlation_vars = ['stress_level', 'anxiety_level', 'self_esteem', 'sleep_quality', 
                     'bullying', 'depression', 'peer_pressure', 'social_support']
-    corr_matrix = filtered_df[correlation_vars].corr()
+    corr_matrix = df[correlation_vars].corr()
     
     fig_heatmap = px.imshow(
         corr_matrix,
@@ -746,12 +749,16 @@ def main():
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Modelo Preditivo de Estresse")
     
+    # Aviso sobre uso de dados completos
+    st.info("📊 **Modelo treinado com dataset completo** (1000 amostras) para máxima precisão. Filtros aplicam-se apenas às visualizações.")
+    
     feature_cols = ['anxiety_level', 'future_career_concerns', 'bullying', 
                 'depression', 'sleep_quality', 'peer_pressure']
     
-    if all(col in filtered_df.columns for col in feature_cols):
-        X = filtered_df[feature_cols]
-        y = filtered_df['stress_level']
+    if all(col in df.columns for col in feature_cols):
+        # Usar dataset completo para treinar o modelo (mesma abordagem do notebook)
+        X = df[feature_cols]
+        y = df['stress_level']
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
