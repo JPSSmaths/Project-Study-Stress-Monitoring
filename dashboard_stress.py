@@ -356,8 +356,7 @@ def main():
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Análise de Correlações")
     
-    # Aviso sobre uso de dados completos para correlações
-    st.info("📊 **Correlações calculadas com dataset completo** para análise estatística precisa. Filtros aplicam-se apenas às outras visualizações.")
+    st.info("**Correlações calculadas com dataset completo** para análise estatística precisa. Filtros aplicam-se apenas às outras visualizações.")
     
     correlation_vars = ['stress_level', 'anxiety_level', 'self_esteem', 'sleep_quality', 
                     'bullying', 'depression', 'peer_pressure', 'social_support']
@@ -559,11 +558,11 @@ def main():
         )
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.header("🔬 Testes de Hipótese Estatística")
+    st.header("Testes de Hipótese Estatística")
     
     st.markdown("""
     <div class="insight-box">
-    <h4>📋 Análises Estatísticas Realizadas</h4>
+    <h4>Análises Estatísticas Realizadas</h4>
     <p><strong>Esta seção apresenta testes estatísticos rigorosos para validar hipóteses sobre fatores que influenciam o estresse estudantil.</strong></p>
     <p>• <strong>ANOVA:</strong> Compara médias de estresse entre diferentes níveis de qualidade do sono</p>
     <p>• <strong>Correlação de Pearson:</strong> Analisa a relação linear entre carga de estudos e nível de estresse</p>
@@ -588,7 +587,6 @@ def main():
                 'Std': grupo.std()
             })
         
-        # Boxplot para ANOVA
         fig_anova = px.box(
             filtered_df,
             x='sleep_quality',
@@ -598,7 +596,6 @@ def main():
             color_discrete_sequence=px.colors.qualitative.Set3
         )
         
-        # Adicionar médias no boxplot
         for i, stat in enumerate(sleep_quality_stats):
             fig_anova.add_annotation(
                 x=stat['Sleep Quality'],
@@ -749,14 +746,12 @@ def main():
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Modelo Preditivo de Estresse")
     
-    # Aviso sobre uso de dados completos
-    st.info("📊 **Modelo treinado com dataset completo** (1000 amostras) para máxima precisão. Filtros aplicam-se apenas às visualizações.")
+    st.info("**Modelo treinado com dataset completo** (1000 amostras) para máxima precisão. Filtros aplicam-se apenas às visualizações.")
     
     feature_cols = ['anxiety_level', 'future_career_concerns', 'bullying', 
                 'depression', 'sleep_quality', 'peer_pressure']
     
     if all(col in df.columns for col in feature_cols):
-        # Usar dataset completo para treinar o modelo (mesma abordagem do notebook)
         X = df[feature_cols]
         y = df['stress_level']
         
@@ -873,7 +868,6 @@ def main():
             mime="text/csv"
         )
     
-    # Footer
     st.markdown("---")
     st.markdown("### Dashboard de Análise de Estresse Estudantil")
     st.markdown("*Desenvolvido para apoiar a tomada de decisões baseada em dados na educação*")
