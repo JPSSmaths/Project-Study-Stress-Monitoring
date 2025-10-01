@@ -185,6 +185,7 @@ def main():
         "Impacto Bullying": "#an-lise-detalhada-do-impacto-do-bullying",
         "Análise Multivariada": "#an-lise-multivariada",
         "Testes Estatísticos": "#testes-de-hip-tese-estat-stica",
+        "Intervalos de Confiança": "#intervalos-de-confian-a-95",
         "Modelo Preditivo": "#modelo-preditivo-de-estresse",
         "Insights": "#insights-e-recomenda-es"
     }
@@ -342,7 +343,6 @@ def main():
             color='bullying',
             color_discrete_sequence=px.colors.qualitative.Set3
         )
-        
         # Atualizar labels do eixo X para todos os níveis
         bullying_levels = sorted(filtered_df['bullying'].unique())
         ticktext = ['Sem Bullying' if x == 0 else f'Nível {x}' for x in bullying_levels]
@@ -561,7 +561,7 @@ def main():
             z='stress_level',
             color='bullying',
             title="Análise Tridimensional",
-            color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
+            color_continuous_scale='viridis',
             hover_data=['sleep_quality', 'depression']
         )
         st.plotly_chart(
@@ -578,7 +578,7 @@ def main():
             size='depression',
             color='bullying',
             title="Ansiedade vs Estresse (tamanho = depressão)",
-            color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
+            color_continuous_scale='viridis',
             hover_data=['self_esteem', 'sleep_quality']
         )
         st.plotly_chart(
@@ -689,7 +689,7 @@ def main():
             title="Correlação entre Study Load e Stress Level",
             opacity=0.6,
             color='bullying',
-            color_discrete_map={0: '#2ecc71', 1: '#e74c3c'},
+            color_continuous_scale='viridis',
             hover_data=['anxiety_level', 'sleep_quality']
         )
         
@@ -857,6 +857,205 @@ def main():
             )
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.header("📊 Intervalos de Confiança (95%)")
+    
+    st.markdown("""
+    <div class="insight-box">
+    <h4>📈 Análise de Intervalos de Confiança</h4>
+    <p><strong>Esta seção apresenta intervalos de confiança de 95% para variáveis-chave, fornecendo estimativas precisas da população estudantil.</strong></p>
+    <p>• <strong>Intervalos estreitos:</strong> Estimativas mais precisas e confiáveis</p>
+    <p>• <strong>Intervalos largos:</strong> Maior variabilidade nos dados</p>
+    <p>• <strong>Amostra:</strong> Baseado no dataset completo para máxima precisão estatística</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Função para calcular intervalo de confiança
+    def calcular_ic_95(dados, nome_variavel):
+        """Calcula intervalo de confiança de 95% para a média"""
+        n = len(dados)
+        if n < 2:
+            return None
+            
+        media = np.mean(dados)
+        desvio_padrao = np.std(dados, ddof=1)
+        erro_padrao = desvio_padrao / np.sqrt(n)
+        
+        # t-crítico para 95% de confiança
+        t_critico = stats.t.ppf(0.975, df=n-1)
+        
+        # Margem de erro
+        margem_erro = t_critico * erro_padrao
+        
+        # Intervalo de confiança
+        ic_inferior = media - margem_erro
+        ic_superior = media + margem_erro
+        
+        return {
+            'nome': nome_variavel,
+            'n': n,
+            'media': media,
+            'desvio_padrao': desvio_padrao,
+            'erro_padrao': erro_padrao,
+            'ic_inferior': ic_inferior,
+            'ic_superior': ic_superior,
+            'margem_erro': margem_erro
+        }
+    
+    # Variáveis para análise de IC (usando dataset completo para precisão)
+    variaveis_ic = {
+        'anxiety_level': 'Níveis de Ansiedade',
+        'self_esteem': 'Autoestima', 
+        'living_conditions': 'Condições de Vida',
+        'social_support': 'Suporte Social',
+        'academic_performance': 'Performance Acadêmica',
+        'teacher_student_relationship': 'Relacionamento Professor-Aluno'
+    }
+    
+    resultados_ic = []
+    
+    # Calcular ICs para cada variável
+    for var, nome in variaveis_ic.items():
+        if var in df.columns:
+            dados = df[var].dropna()
+            resultado = calcular_ic_95(dados, nome)
+            if resultado:
+                resultados_ic.append(resultado)
+    
+    if resultados_ic:
+        # Visualizações dos intervalos de confiança
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Gráfico de intervalos de confiança
+            nomes = [r['nome'] for r in resultados_ic]
+            medias = [r['media'] for r in resultados_ic]
+            margens_erro = [r['margem_erro'] for r in resultados_ic]
+            ic_inferiores = [r['ic_inferior'] for r in resultados_ic]
+            ic_superiores = [r['ic_superior'] for r in resultados_ic]
+            
+            fig_ic = go.Figure()
+            
+            # Adicionar barras de erro
+            fig_ic.add_trace(go.Scatter(
+                x=medias,
+                y=nomes,
+                error_x=dict(type='data', array=margens_erro),
+                mode='markers',
+                marker=dict(size=10, color='steelblue'),
+                name='Médias com IC 95%'
+            ))
+            
+            # Adicionar valores das médias
+            for i, (media, nome) in enumerate(zip(medias, nomes)):
+                fig_ic.add_annotation(
+                    x=media,
+                    y=nome,
+                    text=f'{media:.2f}',
+                    showarrow=False,
+                    yshift=20,
+                    font=dict(size=10, color='black')
+                )
+            
+            fig_ic.update_layout(
+                title="Médias com Intervalos de Confiança 95%",
+                xaxis_title="Valor da Variável",
+                yaxis_title="Variáveis",
+                showlegend=False,
+                height=400
+            )
+            
+            st.plotly_chart(fig_ic, use_container_width=True, config={"responsive": True})
+        
+        with col2:
+            # Gráfico de precisão (margem de erro)
+            df_precisao = pd.DataFrame(resultados_ic).sort_values('margem_erro')
+            
+            fig_precisao = px.bar(
+                df_precisao,
+                x='margem_erro',
+                y='nome',
+                orientation='h',
+                title="Precisão das Estimativas (Menor = Mais Preciso)",
+                color='margem_erro',
+                color_continuous_scale='RdYlGn_r',
+                text='margem_erro'
+            )
+            
+            fig_precisao.update_traces(texttemplate='±%{text:.3f}', textposition='outside')
+            fig_precisao.update_layout(
+                xaxis_title="Margem de Erro",
+                yaxis_title="Variáveis",
+                showlegend=False,
+                height=400
+            )
+            
+            st.plotly_chart(fig_precisao, use_container_width=True, config={"responsive": True})
+        
+        # Tabela resumo dos intervalos de confiança
+        st.subheader("Resumo dos Intervalos de Confiança")
+        
+        df_ic_resumo = pd.DataFrame(resultados_ic)
+        df_ic_resumo = df_ic_resumo.round({
+            'media': 3,
+            'ic_inferior': 3,
+            'ic_superior': 3,
+            'margem_erro': 4,
+            'desvio_padrao': 3
+        })
+        
+        # Reformatar para exibição
+        df_display = df_ic_resumo[['nome', 'n', 'media', 'ic_inferior', 'ic_superior', 'margem_erro']].copy()
+        df_display.columns = ['Variável', 'Amostra (n)', 'Média', 'IC Inferior', 'IC Superior', 'Margem de Erro']
+        df_display['Intervalo 95%'] = df_display.apply(
+            lambda row: f"[{row['IC Inferior']:.3f}, {row['IC Superior']:.3f}]", axis=1
+        )
+        df_display['Margem de Erro'] = df_display['Margem de Erro'].apply(lambda x: f"±{x:.4f}")
+        
+        st.dataframe(
+            df_display[['Variável', 'Amostra (n)', 'Média', 'Intervalo 95%', 'Margem de Erro']], 
+            use_container_width=True
+        )
+        
+        # Ranking por precisão
+        st.subheader("🎯 Ranking por Precisão")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### Variáveis Mais Precisas")
+            df_precisao_sorted = df_ic_resumo.sort_values('margem_erro').head(3)
+            
+            for i, (_, row) in enumerate(df_precisao_sorted.iterrows(), 1):
+                precisao = "Alta" if row['margem_erro'] < 1 else "Média"
+                st.markdown(f"<div class='insight-item'>{i}º <strong>{row['nome']}</strong>: ±{row['margem_erro']:.4f} ({precisao} precisão)</div>", unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("### Análise de Variabilidade")
+            df_variabilidade = df_ic_resumo.sort_values('desvio_padrao', ascending=False)
+            
+            maior_var = df_variabilidade.iloc[0]
+            menor_var = df_variabilidade.iloc[-1]
+            
+            st.markdown(f"<div class='insight-item'><strong>Maior variabilidade:</strong> {maior_var['nome']} (σ = {maior_var['desvio_padrao']:.3f})</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='insight-item'><strong>Menor variabilidade:</strong> {menor_var['nome']} (σ = {menor_var['desvio_padrao']:.3f})</div>", unsafe_allow_html=True)
+        
+        # Interpretação dos resultados
+        st.subheader("📝 Interpretação dos Resultados")
+        
+        interpretacoes = [
+            "Intervalos de Confiança de 95% indicam onde a verdadeira média populacional provavelmente está localizada",
+            "Intervalos mais estreitos = estimativas mais precisas e confiáveis",
+            "Intervalos mais largos = maior incerteza na estimativa devido à variabilidade dos dados",
+            "Amostras maiores tendem a produzir intervalos mais estreitos e estimativas mais precisas"
+        ]
+        
+        for interpretacao in interpretacoes:
+            st.markdown(f"<div class='insight-item'>• {interpretacao}</div>", unsafe_allow_html=True)
+    
+    else:
+        st.warning("⚠️ Não foi possível calcular intervalos de confiança para as variáveis selecionadas.")
+    
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Insights e Recomendações")
     
     insights = []
@@ -864,29 +1063,29 @@ def main():
     if len(filtered_df) > 0:
         bullying_rate = (filtered_df['bullying'].sum() / len(filtered_df)) * 100
         if bullying_rate > 30:
-            insights.append("**Alta prevalência de bullying** - Implementar programa de prevenção urgente")
+            insights.append("Alta prevalência de bullying - Implementar programa de prevenção urgente")
         elif bullying_rate > 15:
-            insights.append("**Bullying moderado** - Fortalecer políticas anti-bullying")
+            insights.append("Bullying moderado - Fortalecer políticas anti-bullying")
         else:
-            insights.append("**Baixa incidência de bullying** - Manter programas preventivos")
+            insights.append("Baixa incidência de bullying - Manter programas preventivos")
     
     if len(filtered_df) > 0:
         high_stress_rate = (len(filtered_df[filtered_df['stress_level'] >= 3]) / len(filtered_df)) * 100
         if high_stress_rate > 25:
-            insights.append("**Alto nível de estresse** - Implementar técnicas de gestão de estresse")
+            insights.append("Alto nível de estresse - Implementar técnicas de gestão de estresse")
         elif high_stress_rate > 15:
-            insights.append("**Estresse moderado** - Oferecer suporte psicológico")
+            insights.append("Estresse moderado - Oferecer suporte psicológico")
         else:
-            insights.append("**Níveis de estresse controlados** - Continuar monitoramento")
+            insights.append("Níveis de estresse controlados - Continuar monitoramento")
     
     if len(filtered_df) > 0:
         avg_self_esteem = filtered_df['self_esteem'].mean()
         if avg_self_esteem < 2.5:
-            insights.append("**Baixa autoestima** - Desenvolver programas de empoderamento")
+            insights.append("Baixa autoestima - Desenvolver programas de empoderamento")
         elif avg_self_esteem < 3.5:
-            insights.append("**Autoestima moderada** - Incentivar atividades de desenvolvimento pessoal")
+            insights.append("Autoestima moderada - Incentivar atividades de desenvolvimento pessoal")
         else:
-            insights.append("**Boa autoestima** - Manter ambiente positivo")
+            insights.append("Boa autoestima - Manter ambiente positivo")
     
     for i, insight in enumerate(insights, 1):
         st.markdown(f'<div class="insight-item">{i}. {insight}</div>', unsafe_allow_html=True)
