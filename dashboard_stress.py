@@ -137,21 +137,38 @@ st.markdown("""
     
     /* Estilo para insights individuais */
     .insight-item {
-        background: #ffffff;
+        background: #f8fafc;
         border: 1px solid #d1d5db;
         border-left: 4px solid #059669;
         padding: 1rem 1.25rem;
         margin: 0.5rem 0;
         border-radius: 8px;
-        color: #111827;
-        font-weight: 500;
+        color: #0f172a;
+        font-weight: 600;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .insight-item:hover {
-        background: #f9fafb;
+        background: #e2e8f0;
         transform: translateX(2px);
         transition: all 0.2s ease;
+        color: #0f172a;
+    }
+    
+    /* Estilo específico para conteúdo dos expandidores */
+    .stExpander > div > div {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+    
+    .stExpander > div > div p {
+        color: #1e293b !important;
+        font-weight: 500 !important;
+    }
+    
+    .stExpander > div > div strong {
+        color: #0f172a !important;
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1063,32 +1080,134 @@ def main():
     if len(filtered_df) > 0:
         bullying_rate = (filtered_df['bullying'].sum() / len(filtered_df)) * 100
         if bullying_rate > 30:
-            insights.append("Alta prevalência de bullying - Implementar programa de prevenção urgente")
+            insights.append("**Alta prevalência de bullying** - Implementar programa de prevenção urgente")
         elif bullying_rate > 15:
-            insights.append("Bullying moderado - Fortalecer políticas anti-bullying")
+            insights.append("**Bullying moderado** - Fortalecer políticas anti-bullying")
         else:
-            insights.append("Baixa incidência de bullying - Manter programas preventivos")
+            insights.append("**Baixa incidência de bullying** - Manter programas preventivos")
     
     if len(filtered_df) > 0:
         high_stress_rate = (len(filtered_df[filtered_df['stress_level'] >= 3]) / len(filtered_df)) * 100
         if high_stress_rate > 25:
-            insights.append("Alto nível de estresse - Implementar técnicas de gestão de estresse")
+            insights.append("**Alto nível de estresse** - Implementar técnicas de gestão de estresse")
         elif high_stress_rate > 15:
-            insights.append("Estresse moderado - Oferecer suporte psicológico")
+            insights.append("**Estresse moderado** - Oferecer suporte psicológico")
         else:
-            insights.append("Níveis de estresse controlados - Continuar monitoramento")
+            insights.append("**Níveis de estresse controlados** - Continuar monitoramento")
     
     if len(filtered_df) > 0:
         avg_self_esteem = filtered_df['self_esteem'].mean()
         if avg_self_esteem < 2.5:
-            insights.append("Baixa autoestima - Desenvolver programas de empoderamento")
+            insights.append("**Baixa autoestima** - Desenvolver programas de empoderamento")
         elif avg_self_esteem < 3.5:
-            insights.append("Autoestima moderada - Incentivar atividades de desenvolvimento pessoal")
+            insights.append("**Autoestima moderada** - Incentivar atividades de desenvolvimento pessoal")
         else:
-            insights.append("Boa autoestima - Manter ambiente positivo")
+            insights.append("**Boa autoestima** - Manter ambiente positivo")
     
     for i, insight in enumerate(insights, 1):
         st.markdown(f'<div class="insight-item">{i}. {insight}</div>', unsafe_allow_html=True)
+    
+    # Estratégias de curto prazo (0-3 meses)
+    st.markdown("### 🚀 Estratégias de Curto Prazo (0-3 meses)")
+    
+    recomendacoes_curto = [
+        {
+            "titulo": "Programa Anti-Bullying Intensivo",
+            "descricao": "Implementar protocolo de resposta rápida para estudantes em alto risco",
+            "acoes": [
+                "Identificar e mapear casos ativos de bullying",
+                "Treinamento urgente de professores e funcionários",
+                "Sistema de denúncia anônima digital",
+                "Acompanhamento psicológico imediato para vítimas"
+            ],
+            "meta": "Reduzir incidents de bullying em 30% em 3 meses",
+            "indicador": "Taxa de bullying severo (níveis 4-5)"
+        },
+        {
+            "titulo": "Técnicas de Gestão de Estresse",
+            "descricao": "Workshops semanais para estudantes com alto estresse",
+            "acoes": [
+                "Sessões de mindfulness e respiração",
+                "Técnicas de relaxamento muscular progressivo",
+                "Gestão de tempo e organização de estudos",
+                "Grupos de apoio entre pares"
+            ],
+            "meta": "Reduzir nível médio de estresse em 15%",
+            "indicador": "Stress level médio da população"
+        },
+        {
+            "titulo": "Melhoria da Qualidade do Sono",
+            "descricao": "Programa de higiene do sono para todos os estudantes",
+            "acoes": [
+                "Palestras sobre importância do sono",
+                "Apps de monitoramento de sono",
+                "Restrições de dispositivos eletrônicos após 22h",
+                "Ambiente dormitório otimizado"
+            ],
+            "meta": "Aumentar qualidade média do sono em 20%",
+            "indicador": "Sleep quality score médio"
+        }
+    ]
+    
+    for i, rec in enumerate(recomendacoes_curto, 1):
+        with st.expander(f"🎯 {i}. {rec['titulo']}", expanded=False):
+            st.markdown(f"**Descrição:** {rec['descricao']}")
+            st.markdown("**Ações Específicas:**")
+            for acao in rec['acoes']:
+                st.markdown(f"• {acao}")
+            st.markdown(f"**Meta:** {rec['meta']}")
+            st.markdown(f"**Indicador de Sucesso:** {rec['indicador']}")
+    
+    # Estratégias de médio prazo (3-12 meses)
+    st.markdown("### 📈 Estratégias de Médio Prazo (3-12 meses)")
+    
+    recomendacoes_medio = [
+        {
+            "titulo": "Programa de Fortalecimento da Autoestima",
+            "descricao": "Iniciativas estruturadas para elevar a autoestima estudantil",
+            "acoes": [
+                "Mentorias individualizadas",
+                "Projetos de liderança estudantil",
+                "Celebração de conquistas acadêmicas e pessoais",
+                "Desenvolvimento de habilidades socioemocionais"
+            ],
+            "meta": "Aumentar autoestima média em 25%",
+            "indicador": "Self esteem score médio"
+        },
+        {
+            "titulo": "Rede de Suporte Social Estruturada",
+            "descricao": "Criar sistema robusto de apoio entre estudantes",
+            "acoes": [
+                "Programa de buddy system",
+                "Grupos de interesse e hobbies",
+                "Eventos de integração mensais",
+                "Treinamento de líderes estudantis"
+            ],
+            "meta": "Aumentar percepção de suporte social em 30%",
+            "indicador": "Social support score médio"
+        },
+        {
+            "titulo": "Otimização do Ambiente Acadêmico",
+            "descricao": "Melhorar relação professor-aluno e ambiente de aprendizagem",
+            "acoes": [
+                "Capacitação docente em inteligência emocional",
+                "Implementação de metodologias ativas",
+                "Flexibilização de prazos para estudantes em risco",
+                "Sistema de feedback contínuo"
+            ],
+            "meta": "Melhorar relacionamento professor-aluno em 40%",
+            "indicador": "Teacher student relationship score"
+        }
+    ]
+    
+    for i, rec in enumerate(recomendacoes_medio, 1):
+        with st.expander(f"📈 {i}. {rec['titulo']}", expanded=False):
+            st.markdown(f"Descrição: {rec['descricao']}")
+            st.markdown("Ações Específicas:")
+            for acao in rec['acoes']:
+                st.markdown(f"• {acao}")
+            st.markdown(f"Meta: {rec['meta']}")
+            st.markdown(f"Indicador de Sucesso: {rec['indicador']}")
     
     with st.expander("Ver Dados Filtrados", expanded=False):
         st.dataframe(filtered_df, width="stretch")
