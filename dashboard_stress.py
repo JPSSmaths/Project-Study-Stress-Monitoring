@@ -208,11 +208,11 @@ def main():
     )
     
     bullying_filter = st.sidebar.multiselect(
-        "Status de Bullying",
-        options=[0, 1],
-        default=[0, 1],
-        format_func=lambda x: "Sem Bullying" if x == 0 else "Com Bullying",
-        help="Inclua ou exclua estudantes com histórico de bullying"
+        "Nível de Bullying",
+        options=sorted(df['bullying'].unique()),
+        default=sorted(df['bullying'].unique()),
+        format_func=lambda x: "Sem Bullying" if x == 0 else f"Bullying Nível {x}",
+        help="Selecione níveis de bullying (0=sem, 1-5=níveis crescentes)"
     )
     
     anxiety_range = st.sidebar.slider(
@@ -286,11 +286,11 @@ def main():
         )
     
     with col2:
-        bullying_pct = (filtered_df['bullying'].sum() / len(filtered_df)) * 100 if len(filtered_df) > 0 else 0
+        bullying_pct = (len(filtered_df[filtered_df['bullying'] > 0]) / len(filtered_df)) * 100 if len(filtered_df) > 0 else 0
         st.metric(
             label="% com Bullying",
             value=f"{bullying_pct:.1f}%",
-            delta=f"{bullying_pct - (df['bullying'].sum() / len(df)) * 100:.1f}%" if len(filtered_df) < len(df) else None
+            delta=f"{bullying_pct - (len(df[df['bullying'] > 0]) / len(df)) * 100:.1f}%" if len(filtered_df) < len(df) else None
         )
     
     with col3:
@@ -338,13 +338,17 @@ def main():
             filtered_df,
             x='bullying',
             y='stress_level',
-            title="Estresse por Status de Bullying",
+            title="Estresse por Nível de Bullying",
             color='bullying',
-            color_discrete_map={0: '#2ecc71', 1: '#e74c3c'}
+            color_discrete_sequence=px.colors.qualitative.Set3
         )
+        
+        # Atualizar labels do eixo X para todos os níveis
+        bullying_levels = sorted(filtered_df['bullying'].unique())
+        ticktext = ['Sem Bullying' if x == 0 else f'Nível {x}' for x in bullying_levels]
         fig_box.update_xaxes(
-            tickvals=[0, 1],
-            ticktext=['Sem Bullying', 'Com Bullying']
+            tickvals=bullying_levels,
+            ticktext=ticktext
         )
         fig_box.update_layout(showlegend=False)
         st.plotly_chart(
@@ -415,14 +419,38 @@ def main():
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Análise Detalhada do Impacto do Bullying")
     
-    no_bullying = filtered_df[filtered_df['bullying'] == 0]
-    with_bullying = filtered_df[filtered_df['bullying'] == 1]
+    st.info("📊 **Análise por níveis:** 0=sem bullying, 1-5=níveis crescentes de bullying")
     
+    no_bullying = filtered_df[filtered_df['bullying'] == 0]
+    with_bullying = filtered_df[filtered_df['bullying'] > 0]
+    
+    # Análise por todos os níveis de bullying
+    st.subheader("Métricas por Nível de Bullying")
+    
+    bullying_levels = sorted(filtered_df['bullying'].unique())
+    cols = st.columns(min(len(bullying_levels), 6))  # Máximo 6 colunas
+    
+    for i, level in enumerate(bullying_levels):
+        col_idx = i % len(cols)
+        with cols[col_idx]:
+            level_data = filtered_df[filtered_df['bullying'] == level]
+            label = "Sem Bullying" if level == 0 else f"Nível {level}"
+            
+            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+            st.markdown(f"### {label}")
+            if len(level_data) > 0:
+                st.markdown(f"**N:** {len(level_data)}")
+                st.markdown(f"**Estresse:** {level_data['stress_level'].mean():.2f}")
+                st.markdown(f"**Autoestima:** {level_data['self_esteem'].mean():.1f}")
+            st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Comparação sem vs com bullying
+    st.subheader("Comparação: Sem vs Com Bullying")
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### Sem Bullying")
+        st.markdown("### Sem Bullying (0)")
         if len(no_bullying) > 0:
             st.markdown(f"**Estudantes:** {len(no_bullying)}")
             st.markdown(f"**Estresse Médio:** {no_bullying['stress_level'].mean():.2f}")
@@ -432,7 +460,7 @@ def main():
     
     with col2:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### Com Bullying")
+        st.markdown("### Com Bullying (1-5)")
         if len(with_bullying) > 0:
             st.markdown(f"**Estudantes:** {len(with_bullying)}")
             st.markdown(f"**Estresse Médio:** {with_bullying['stress_level'].mean():.2f}")
@@ -461,18 +489,23 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1:
+        # Criar gráfico para todos os níveis de bullying
         fig_violin = px.violin(
             filtered_df,
             x='bullying',
             y='stress_level',
             box=True,
-            title="Distribuição de Estresse por Bullying",
+            title="Distribuição de Estresse por Nível de Bullying",
             color='bullying',
-            color_discrete_map={0: '#2ecc71', 1: '#e74c3c'}
+            color_discrete_sequence=px.colors.qualitative.Set3
         )
+        
+        # Atualizar labels do eixo X
+        bullying_levels = sorted(filtered_df['bullying'].unique())
+        ticktext = ['Sem Bullying' if x == 0 else f'Nível {x}' for x in bullying_levels]
         fig_violin.update_xaxes(
-            tickvals=[0, 1],
-            ticktext=['Sem Bullying', 'Com Bullying']
+            tickvals=bullying_levels,
+            ticktext=ticktext
         )
         fig_violin.update_layout(showlegend=False)
         st.plotly_chart(
@@ -483,40 +516,36 @@ def main():
 
     
     with col2:
-        metrics = ['stress_level', 'anxiety_level', 'self_esteem', 'sleep_quality']
-        bullying_comparison = []
+        # Gráfico de barras comparando autoestima por nível de bullying
+        autoestima_por_nivel = []
+        for level in sorted(filtered_df['bullying'].unique()):
+            level_data = filtered_df[filtered_df['bullying'] == level]
+            if len(level_data) > 0:
+                label = 'Sem Bullying' if level == 0 else f'Nível {level}'
+                autoestima_por_nivel.append({
+                    'Nível': label,
+                    'Autoestima Média': level_data['self_esteem'].mean(),
+                    'N': len(level_data)
+                })
         
-        for metric in metrics:
-            bullying_comparison.extend([
-                {
-                    'Metric': metric.replace('_', ' ').title(),
-                    'Value': no_bullying[metric].mean() if len(no_bullying) > 0 else 0,
-                    'Group': 'Sem Bullying'
-                },
-                {
-                    'Metric': metric.replace('_', ' ').title(),
-                    'Value': with_bullying[metric].mean() if len(with_bullying) > 0 else 0,
-                    'Group': 'Com Bullying'
-                }
-            ])
-        
-        comparison_df = pd.DataFrame(bullying_comparison)
-        
-        fig_comparison = px.bar(
-            comparison_df,
-            x='Metric',
-            y='Value',
-            color='Group',
-            barmode='group',
-            title="Comparação de Múltiplas Métricas",
-            color_discrete_map={'Sem Bullying': '#2ecc71', 'Com Bullying': '#e74c3c'}
-        )
-        fig_comparison.update_xaxes(tickangle=45)
-        st.plotly_chart(
-            fig_comparison,
-            use_container_width=True,
-            config={"responsive": True}
-        )
+        if autoestima_por_nivel:
+            autoestima_df = pd.DataFrame(autoestima_por_nivel)
+            fig_autoestima = px.bar(
+                autoestima_df,
+                x='Nível',
+                y='Autoestima Média',
+                title="Autoestima Média por Nível de Bullying",
+                text='Autoestima Média',
+                color='Autoestima Média',
+                color_continuous_scale='RdYlGn'
+            )
+            fig_autoestima.update_traces(texttemplate='%{text:.1f}', textposition='outside')
+            fig_autoestima.update_layout(showlegend=False)
+            st.plotly_chart(
+                fig_autoestima,
+                use_container_width=True,
+                config={"responsive": True}
+            )
 
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     st.header("Análise Multivariada")
